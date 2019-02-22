@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ApiMvp.Data
+﻿namespace ApiMvp.Data
 {
     public class Config
     {

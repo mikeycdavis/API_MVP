@@ -1,79 +1,95 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ApiMvp.Data;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using JsonReader = ApiMvp.Data.JsonReader;
 
 namespace ApiMvp.Controllers
 {
-    [Route("api/[controller]")]
+    /// <summary>
+    /// API methods for an Agent.
+    /// </summary>
+    [Route("api/[controller]/[action]")]
     [ApiController]
     public class AgentController : ControllerBase
     {
         private readonly IOptions<Config> _config;
+        private readonly string _agentsFilePath;
 
         public AgentController(IOptions<Config> config)
         {
             _config = config;
+            _agentsFilePath = $"{_config.Value.DataFilePath}\\agents.json";
         }
 
-        // GET api/agent
+        /// <summary>
+        /// Get all agents.
+        /// </summary>
+        /// <returns>All agents by name.</returns>
+        // GET api/Agent/Get
         [HttpGet]
-        public ActionResult<IEnumerable<Agent>> Get()
+        public ActionResult<IEnumerable<string>> Get()
         {
-            List<Agent> agents = new List<Agent>();
-            JArray agentsJson = GetAgentsJson();
-
-            if (!agentsJson.Children().Any())
-            {
-                return agents;
-            }
-
-            foreach (JToken token in agentsJson.Children())
-            {
-                Agent agent = JsonConvert.DeserializeObject<Agent>(JsonConvert.SerializeObject(token));
-                agent.SetId(token["_id"].Value<int>());
-                agents.Add(agent);
-            }
-
-            return agents;
+            IEnumerable<Agent> agents = Agent.GetAllAgents(_agentsFilePath);
+            return new ActionResult<IEnumerable<string>>(agents.Select(a => a.Name));
         }
 
-        // GET api/agent/5
+        /// <summary>
+        /// Get an agent by id.
+        /// </summary>
+        /// <param name="id">The agent id.</param>
+        /// <returns>The agent.</returns>
+        // GET api/agent/Get/5
         [HttpGet("{id}")]
         public ActionResult<Agent> Get(int id)
         {
-            ActionResult<IEnumerable<Agent>> agents = Get();
-            Agent agent = agents.Value.FirstOrDefault(a => a.GetId() == id);
+            IEnumerable<Agent> agents = Agent.GetAllAgents(_agentsFilePath);
+            Agent agent = agents.FirstOrDefault(a => a.GetId() == id);
             return agent;
         }
 
-        // POST api/agent
+        /// <summary>
+        /// Add an agent
+        /// </summary>
+        /// <param name="agent">The agent to add.</param>
+        // POST api/agent/Add
         [HttpPost]
-        public void Post([FromBody] string value)
+        public void Add([FromBody] Agent agent)
         {
+            List<Agent> agents = Agent.GetAllAgents(_agentsFilePath).ToList();
+
+            if (agents.Any(a => a.Equals(agent)))
+            {
+                throw new Exception("Cannot add Agent. Agent already exists in the system.");
+            }
+
+            // Agent Id will be unique if it is the primary key on the table.
+            Random rnd = new Random();
+            agent.SetId(rnd.Next(int.MaxValue));
+            agents.Add(agent);
+            Agent.Save(_agentsFilePath, agents);
         }
 
-        // PUT api/agent/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        /// <summary>
+        /// Update an agent.
+        /// </summary>
+        /// <param name="id">The id of the agent to update.</param>
+        /// <param name="agent">The agent to update.</param>
+        // POST api/agent/Update
+        [HttpPost]
+        public void Update(int id, [FromBody] Agent agent)
         {
-        }
+            List<Agent> agents = Agent.GetAllAgents(_agentsFilePath).ToList();
+            Agent existingAgent = agents.FirstOrDefault(a => a.GetId() == id);
 
-        // DELETE api/agent/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+            if (existingAgent == null)
+            {
+                throw new Exception("Cannot update Agent. Agent does not exist in the system.");
+            }
 
-        private JArray GetAgentsJson()
-        {
-            JArray agentsJson = JsonConvert.DeserializeObject<JArray>(JsonReader.ReadJsonFile($"{_config.Value.DataFilePath}\\agents.json"));
-            return agentsJson;
+            existingAgent.UpdateValues(agent);
+            Agent.Save(_agentsFilePath, agents);
         }
     }
 }

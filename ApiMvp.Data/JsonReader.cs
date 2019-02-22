@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 
 namespace ApiMvp.Data
 {
@@ -14,6 +11,11 @@ namespace ApiMvp.Data
                 string json = streamReader.ReadToEnd();
                 return json;
             }
+        }
+
+        public static void WriteJsonFile(string filePath, string jsonToWrite)
+        {
+            File.WriteAllText(filePath, jsonToWrite);
         }
     }
 }
