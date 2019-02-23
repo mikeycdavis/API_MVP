@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using ApiMvp.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -32,14 +33,25 @@ namespace ApiMvp.Controllers
         [HttpGet("agent_id")]
         public ActionResult<IEnumerable<object>> GetAgentCustomers(int agent_id)
         {
-            List<Customer> customers = Customer.GetAllCustomers(_customersFilePath).Where(c => c.Agent_Id == agent_id).ToList();
-
-            if (!customers.Any())
+            try
             {
-                throw new Exception($"No customers have an agent with id {agent_id}.");
-            }
+                List<Customer> customers = GetCustomers().Where(c => c.Agent_Id == agent_id).ToList();
 
-            return new ActionResult<IEnumerable<object>>(customers.Select(c => new { Name = $"{c.Name.Last}, {c.Name.First}", Location = $"{c.Address.Split()[2]},{c.Address.Split()[4]}" }));
+                if (!customers.Any())
+                {
+                    throw new Exception($"No customers have an agent with id {agent_id}.");
+                }
+
+                return new ActionResult<IEnumerable<object>>(customers.Select(c => new
+                {
+                    Name = $"{c.Name.Last}, {c.Name.First}",
+                    Location = $"{c.Address.Split()[2]}, {c.Address.Split()[4]}"
+                }));
+            }
+            catch (Exception e)
+            {
+                return StatusCode((int)HttpStatusCode.BadRequest, e.Message);
+            }
         }
 
         /// <summary>
@@ -51,15 +63,22 @@ namespace ApiMvp.Controllers
         [HttpGet("{id}")]
         public ActionResult<Customer> Get(int id)
         {
-            List<Customer> customers = GetCustomers();
-            Customer customer = customers.FirstOrDefault(a => a.GetId() == id);
-
-            if (customer == null)
+            try
             {
-                throw new Exception($"Customer with id {id} does not exist.");
-            }
+                IEnumerable<Customer> customers = GetCustomers();
+                Customer customer = customers.FirstOrDefault(a => a.GetId() == id);
 
-            return customer;
+                if (customer == null)
+                {
+                    throw new Exception($"Customer with id {id} does not exist.");
+                }
+
+                return customer;
+            }
+            catch (Exception e)
+            {
+                return StatusCode((int)HttpStatusCode.BadRequest, e.Message);
+            }
         }
 
         /// <summary>
@@ -68,17 +87,25 @@ namespace ApiMvp.Controllers
         /// <param name="customer">The customer to add.</param>
         // POST api/customer/Add
         [HttpPost]
-        public void Add([FromBody] Customer customer)
+        public ActionResult Add([FromBody] Customer customer)
         {
-            List<Customer> customers = GetCustomers();
-
-            if (customers.Any(a => a.Equals(customer)))
+            try
             {
-                throw new Exception("Cannot add Customer. Customer already exists in the system.");
-            }
+                List<Customer> customers = GetCustomers().ToList();
 
-            customers.Add(customer);
-            Customer.Save(_customersFilePath, customers);
+                if (customers.Any(a => a.Equals(customer)))
+                {
+                    throw new Exception("Cannot add Customer. Customer already exists.");
+                }
+
+                customers.Add(customer);
+                Customer.Save(_customersFilePath, customers);
+                return StatusCode((int)HttpStatusCode.OK, "Customer added successfully.");
+            }
+            catch (Exception e)
+            {
+                return StatusCode((int)HttpStatusCode.BadRequest, e.Message);
+            }
         }
 
         /// <summary>
@@ -88,18 +115,26 @@ namespace ApiMvp.Controllers
         /// <param name="customer">The customer to update.</param>
         // POST api/customer/Update
         [HttpPost]
-        public void Update(int id, [FromBody] Customer customer)
+        public ActionResult Update(int id, [FromBody] Customer customer)
         {
-            List<Customer> customers = GetCustomers();
-            Customer existingCustomer = customers.FirstOrDefault(a => a.GetId() == id);
-
-            if (existingCustomer == null)
+            try
             {
-                throw new Exception("Cannot update Customer. Customer does not exist in the system.");
-            }
+                List<Customer> customers = GetCustomers().ToList();
+                Customer existingCustomer = customers.FirstOrDefault(a => a.GetId() == id);
 
-            existingCustomer.UpdateValues(customer);
-            Customer.Save(_customersFilePath, customers);
+                if (existingCustomer == null)
+                {
+                    throw new Exception("Cannot update Customer. Customer does not exist.");
+                }
+
+                existingCustomer.UpdateValues(customer);
+                Customer.Save(_customersFilePath, customers);
+                return StatusCode((int)HttpStatusCode.OK, "Customer updated successfully.");
+            }
+            catch (Exception e)
+            {
+                return StatusCode((int)HttpStatusCode.BadRequest, e.Message);
+            }
         }
 
         /// <summary>
@@ -108,21 +143,29 @@ namespace ApiMvp.Controllers
         /// <param name="id">The customer id to delete.</param>
         // DELETE api/customer/Delete
         [HttpDelete]
-        public void Delete(int id)
+        public ActionResult Delete(int id)
         {
-            List<Customer> customers = GetCustomers();
-            Customer customer = customers.FirstOrDefault(c => c.GetId() == id);
-
-            if (customer == null)
+            try
             {
-                return;
-            }
+                List<Customer> customers = GetCustomers().ToList();
+                Customer customer = customers.FirstOrDefault(c => c.GetId() == id);
 
-            customers.Remove(customer);
-            Customer.Save(_customersFilePath, customers);
+                if (customer == null)
+                {
+                    throw new Exception("Cannot delete Customer. Customer does not exist.");
+                }
+
+                customers.Remove(customer);
+                Customer.Save(_customersFilePath, customers);
+                return StatusCode((int)HttpStatusCode.OK, "Customer deleted successfully.");
+            }
+            catch (Exception e)
+            {
+                return StatusCode((int)HttpStatusCode.BadRequest, e.Message);
+            }
         }
 
-        private List<Customer> GetCustomers()
+        private IEnumerable<Customer> GetCustomers()
         {
             List<Customer> customers = Customer.GetAllCustomers(_customersFilePath).ToList();
 

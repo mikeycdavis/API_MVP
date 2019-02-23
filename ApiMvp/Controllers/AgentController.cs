@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using ApiMvp.Data;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -29,10 +32,17 @@ namespace ApiMvp.Controllers
         /// <returns>All agents by name.</returns>
         // GET api/Agent/Get
         [HttpGet]
-        public ActionResult<IEnumerable<string>> Get()
+        public ActionResult<IEnumerable<Agent>> Get()
         {
-            IEnumerable<Agent> agents = Agent.GetAllAgents(_agentsFilePath);
-            return new ActionResult<IEnumerable<string>>(agents.Select(a => a.Name));
+            try
+            {
+                IEnumerable<Agent> agents = GetAgents();
+                return new ActionResult<IEnumerable<Agent>>(agents);
+            }
+            catch (Exception e)
+            {
+                return StatusCode((int)HttpStatusCode.BadRequest, e.Message);
+            }
         }
 
         /// <summary>
@@ -44,9 +54,22 @@ namespace ApiMvp.Controllers
         [HttpGet("{id}")]
         public ActionResult<Agent> Get(int id)
         {
-            IEnumerable<Agent> agents = Agent.GetAllAgents(_agentsFilePath);
-            Agent agent = agents.FirstOrDefault(a => a.GetId() == id);
-            return agent;
+            try
+            {
+                IEnumerable<Agent> agents = GetAgents();
+                Agent agent = agents.FirstOrDefault(a => a.GetId() == id);
+
+                if (agent == null)
+                {
+                    throw new Exception($"Agent with id {id} does not exist.");
+                }
+
+                return agent;
+            }
+            catch (Exception e)
+            {
+                return StatusCode((int)HttpStatusCode.BadRequest, e.Message);
+            }
         }
 
         /// <summary>
@@ -55,20 +78,28 @@ namespace ApiMvp.Controllers
         /// <param name="agent">The agent to add.</param>
         // POST api/agent/Add
         [HttpPost]
-        public void Add([FromBody] Agent agent)
+        public ActionResult Add([FromBody] Agent agent)
         {
-            List<Agent> agents = Agent.GetAllAgents(_agentsFilePath).ToList();
-
-            if (agents.Any(a => a.Equals(agent)))
+            try
             {
-                throw new Exception("Cannot add Agent. Agent already exists in the system.");
-            }
+                List<Agent> agents = GetAgents().ToList();
 
-            // Agent Id will be unique if it is the primary key on the table.
-            Random rnd = new Random();
-            agent.SetId(rnd.Next(int.MaxValue));
-            agents.Add(agent);
-            Agent.Save(_agentsFilePath, agents);
+                if (agents.Any(a => a.Equals(agent)))
+                {
+                    throw new Exception("Cannot add Agent. Agent already exists.");
+                }
+
+                // Agent Id will be unique if it is the primary key on the table.
+                Random rnd = new Random();
+                agent.SetId(rnd.Next(int.MaxValue));
+                agents.Add(agent);
+                Agent.Save(_agentsFilePath, agents);
+                return StatusCode((int)HttpStatusCode.OK, "Agent added successfully.");
+            }
+            catch (Exception e)
+            {
+                return StatusCode((int)HttpStatusCode.BadRequest, e.Message);
+            }
         }
 
         /// <summary>
@@ -78,18 +109,38 @@ namespace ApiMvp.Controllers
         /// <param name="agent">The agent to update.</param>
         // POST api/agent/Update
         [HttpPost]
-        public void Update(int id, [FromBody] Agent agent)
+        public ActionResult Update(int id, [FromBody] Agent agent)
+        {
+            try
+            {
+                List<Agent> agents = GetAgents().ToList();
+                Agent existingAgent = agents.FirstOrDefault(a => a.GetId() == id);
+
+                if (existingAgent == null)
+                {
+                    throw new Exception("Cannot update Agent. Agent does not exist.");
+                }
+
+                existingAgent.UpdateValues(agent);
+                Agent.Save(_agentsFilePath, agents);
+                return StatusCode((int)HttpStatusCode.OK, "Agent updated successfully.");
+            }
+            catch (Exception e)
+            {
+                return StatusCode((int)HttpStatusCode.BadRequest, e.Message);
+            }
+        }
+
+        private IEnumerable<Agent> GetAgents()
         {
             List<Agent> agents = Agent.GetAllAgents(_agentsFilePath).ToList();
-            Agent existingAgent = agents.FirstOrDefault(a => a.GetId() == id);
 
-            if (existingAgent == null)
+            if (!agents.Any())
             {
-                throw new Exception("Cannot update Agent. Agent does not exist in the system.");
+                throw new Exception($"No agents exist.");
             }
 
-            existingAgent.UpdateValues(agent);
-            Agent.Save(_agentsFilePath, agents);
+            return agents;
         }
     }
 }
