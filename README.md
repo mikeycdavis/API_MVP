@@ -1,6 +1,11 @@
 # API_MVP
 
 ## Install/Configure
+To install the API:
+- Clone the repository
+- Open IIS and add a new web site.
+- Set the physical path to this: {yourClonedRepoPath}/Deploy/v1
+- Set the port to an open port.
 
 ## API Help
 Once your API is being served, an interactive UI will be avaiable for the API at: https://{baseUrl}/swagger/index.html<br/>
