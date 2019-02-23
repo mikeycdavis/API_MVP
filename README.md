@@ -5,7 +5,7 @@ To install/configure the API:
 - Clone the repository
 - Open IIS and add a new web site.
 - Set the physical path to this: {yourClonedRepoPath}\Deploy\v1<br/>
-For example: C:\OffToSomePlace\GitHub\API_MVP\Deploy\v1
+For example, if you cloned your repository to C:\OffToSomePlace\GitHub\API_MVP\, the physical path would look like this: C:\OffToSomePlace\GitHub\API_MVP\Deploy\v1
 - Set the port to an open port.
 
 ## API Help
