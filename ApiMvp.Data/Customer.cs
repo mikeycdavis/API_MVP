@@ -46,6 +46,7 @@ namespace ApiMvp.Data
                    Guid == customer.Guid &&
                    IsActive == customer.IsActive &&
                    Balance == customer.Balance &&
+                   Age == customer.Age &&
                    EyeColor == customer.EyeColor &&
                    Name.Equals(customer.Name) &&
                    Company == customer.Company &&
@@ -102,6 +103,7 @@ namespace ApiMvp.Data
             Guid = customer.Guid;
             IsActive = customer.IsActive;
             Balance = customer.Balance;
+            Age = customer.Age;
             EyeColor = customer.EyeColor;
             Name = customer.Name;
             Company = customer.Company;

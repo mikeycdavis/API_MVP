@@ -45,7 +45,7 @@ namespace ApiMvp.Controllers
                 return new ActionResult<IEnumerable<object>>(customers.Select(c => new
                 {
                     Name = $"{c.Name.Last}, {c.Name.First}",
-                    Location = $"{c.Address.Split()[2]}, {c.Address.Split()[4]}"
+                    Location = $"{c.Address.Split(',')[1].Trim()}, {c.Address.Split(',')[2].Trim()}"
                 }));
             }
             catch (Exception e)
