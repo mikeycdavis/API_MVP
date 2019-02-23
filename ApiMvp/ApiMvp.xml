@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ApiMvp</name>
+    </assembly>
+    <members>
+        <member name="T:ApiMvp.Controllers.AgentController">
+            <summary>
+            API methods for an Agent.
+            </summary>
+        </member>
+        <member name="M:ApiMvp.Controllers.AgentController.Get">
+            <summary>
+            Get all agents.
+            </summary>
+            <returns>All agents by name.</returns>
+        </member>
+        <member name="M:ApiMvp.Controllers.AgentController.Get(System.Int32)">
+            <summary>
+            Get an agent by id.
+            </summary>
+            <param name="id">The agent id.</param>
+            <returns>The agent.</returns>
+        </member>
+        <member name="M:ApiMvp.Controllers.AgentController.Add(ApiMvp.Data.Agent)">
+            <summary>
+            Add an agent
+            </summary>
+            <param name="agent">The agent to add.</param>
+        </member>
+        <member name="M:ApiMvp.Controllers.AgentController.Update(ApiMvp.Data.Agent)">
+            <summary>
+            Update an agent.
+            </summary>
+            <param name="id">The id of the agent to update.</param>
+            <param name="agent">The agent to update.</param>
+        </member>
+        <member name="T:ApiMvp.Controllers.CustomerController">
+            <summary>
+            API methods for a Customer.
+            </summary>
+        </member>
+        <member name="M:ApiMvp.Controllers.CustomerController.GetAgentCustomers(System.Int32)">
+            <summary>
+            Get all agent customers.
+            </summary>
+            <param name="agent_id">The agent id.</param>
+            <returns>The customers for the agent.</returns>
+        </member>
+        <member name="M:ApiMvp.Controllers.CustomerController.Get(System.Int32)">
+            <summary>
+            Get a customer.
+            </summary>
+            <param name="id">The customer id.</param>
+            <returns>The customer.</returns>
+        </member>
+        <member name="M:ApiMvp.Controllers.CustomerController.Add(ApiMvp.Data.Customer)">
+            <summary>
+            Add a customer.
+            </summary>
+            <param name="customer">The customer to add.</param>
+        </member>
+        <member name="M:ApiMvp.Controllers.CustomerController.Update(ApiMvp.Data.Customer)">
+            <summary>
+            Update a customer.
+            </summary>
+            <param name="id">The customer id to update.</param>
+            <param name="customer">The customer to update.</param>
+        </member>
+        <member name="M:ApiMvp.Controllers.CustomerController.Delete(System.Int32)">
+            <summary>
+            Delete a customer.
+            </summary>
+            <param name="id">The customer id to delete.</param>
+        </member>
+    </members>
+</doc>
