@@ -12,5 +12,6 @@ For example: C:\OffToSomePlace\GitHub\API_MVP\Deploy\v1
 Once your API is being served, an interactive UI will be avaiable for the API at: http://{baseUrl}/swagger/index.html<br/>
 For example: http://localhost:8089/swagger/index.html<br />
 - All information needed for this API will be provided here.
-- Any API's you "Try Out" here will update the database.
 - Subsequent versions will also be available here as they are released.
+<br />
+<strong>NOTE</strong>: Any API requests you make here will update the database.
