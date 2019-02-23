@@ -32,12 +32,12 @@ namespace ApiMvp.Controllers
         /// <returns>All agents by name.</returns>
         // GET api/Agent/Get
         [HttpGet]
-        public ActionResult<IEnumerable<Agent>> Get()
+        public ActionResult<IEnumerable<object>> Get()
         {
             try
             {
                 IEnumerable<Agent> agents = GetAgents();
-                return new ActionResult<IEnumerable<Agent>>(agents);
+                return new ActionResult<IEnumerable<object>>(agents.Select(a => a.Name));
             }
             catch (Exception e)
             {
@@ -109,12 +109,12 @@ namespace ApiMvp.Controllers
         /// <param name="agent">The agent to update.</param>
         // POST api/agent/Update
         [HttpPost]
-        public ActionResult Update(int id, [FromBody] Agent agent)
+        public ActionResult Update([FromBody] Agent agent)
         {
             try
             {
                 List<Agent> agents = GetAgents().ToList();
-                Agent existingAgent = agents.FirstOrDefault(a => a.GetId() == id);
+                Agent existingAgent = agents.FirstOrDefault(a => a.GetId() == agent.GetId());
 
                 if (existingAgent == null)
                 {

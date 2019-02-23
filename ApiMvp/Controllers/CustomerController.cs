@@ -115,12 +115,12 @@ namespace ApiMvp.Controllers
         /// <param name="customer">The customer to update.</param>
         // POST api/customer/Update
         [HttpPost]
-        public ActionResult Update(int id, [FromBody] Customer customer)
+        public ActionResult Update([FromBody] Customer customer)
         {
             try
             {
                 List<Customer> customers = GetCustomers().ToList();
-                Customer existingCustomer = customers.FirstOrDefault(a => a.GetId() == id);
+                Customer existingCustomer = customers.FirstOrDefault(a => a.GetId() == customer.GetId());
 
                 if (existingCustomer == null)
                 {

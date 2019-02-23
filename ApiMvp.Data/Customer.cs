@@ -8,6 +8,7 @@ namespace ApiMvp.Data
 {
     public class Customer
     {
+        [JsonProperty]
         private int _id;
         public int Agent_Id { get; set; }
         public Guid Guid { get; set; }

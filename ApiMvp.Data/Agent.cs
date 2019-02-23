@@ -7,6 +7,7 @@ namespace ApiMvp.Data
 {
     public class Agent
     {
+        [JsonProperty]
         private int _id;
 
         public string Name { get; set; }

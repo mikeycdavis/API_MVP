@@ -28,7 +28,7 @@
             </summary>
             <param name="agent">The agent to add.</param>
         </member>
-        <member name="M:ApiMvp.Controllers.AgentController.Update(System.Int32,ApiMvp.Data.Agent)">
+        <member name="M:ApiMvp.Controllers.AgentController.Update(ApiMvp.Data.Agent)">
             <summary>
             Update an agent.
             </summary>
@@ -60,7 +60,7 @@
             </summary>
             <param name="customer">The customer to add.</param>
         </member>
-        <member name="M:ApiMvp.Controllers.CustomerController.Update(System.Int32,ApiMvp.Data.Customer)">
+        <member name="M:ApiMvp.Controllers.CustomerController.Update(ApiMvp.Data.Customer)">
             <summary>
             Update a customer.
             </summary>
