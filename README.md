@@ -13,4 +13,5 @@ Once your API is being served, an interactive UI will be avaiable for the API at
 For example: http://localhost:8089/swagger/index.html<br />
 - All information needed for this API will be provided here.
 - Subsequent versions will also be available here as they are released.
+
 <strong>NOTE</strong>: Any API requests you make here will update the database.
